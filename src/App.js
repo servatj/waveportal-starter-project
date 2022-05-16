@@ -19,7 +19,7 @@ export default function App() {
       } else {
         console.log('We have the ethereum object', ethereum)
       }
-      const accounts = await ethereum.requests({ method: 'eth_accounts' })
+      const accounts = await ethereum.request({ method: 'eth_accounts' })
       if (accounts.length !== 0) {
         const [account,] = accounts;
         console.log('Found and authorized account', account);
@@ -83,6 +83,7 @@ export default function App() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    console.log('use effect')
   }, [])
 
   return (
