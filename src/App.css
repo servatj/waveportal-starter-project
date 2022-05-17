@@ -22,6 +22,11 @@
   text-align: center;
   color: gray;
   margin-top: 16px;
+  border: 6px solid black;
+}
+
+image {
+  border: 3px solid black;
 }
 
 .waveButton {
@@ -30,5 +35,5 @@
   padding: 8px;
   border: 0;
   border-radius: 5px;
-  
+
 }

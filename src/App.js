@@ -8,6 +8,8 @@ export default function App() {
   const [currentAccount, setCurrentAccount] = useState("");
   const [allWaves, setAllWaves] = useState([]);
   const [message, setMessage] = useState('');
+  const [gift, setGift] = useState('https://media2.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif?cid=ecf05e47i7dqwns4poitqwwzvsyjlwohpotvuvkxd9oadzxi&rid=giphy.gif&ct=g');
+  const [count, setCount] = useState(0);
 
   const getAllWaves = async () => {
     try {
@@ -116,6 +118,8 @@ export default function App() {
         console.log("Mined -- ", waveTxn.hash);
 
         count = await wavePortalContract.getTotalWaves();
+        setCount(count.toNumber())
+        await getGifs()
         console.log("Retrieved total wave count...", count.toNumber());
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -123,6 +127,35 @@ export default function App() {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  const fromApiResponseToGifs = apiResponse => {
+    const {data = []} = apiResponse
+    if (Array.isArray(data)) {
+      const gifs = data.map(image => {
+        const {images, title, id} = image
+        const { url } = images.downsized_medium
+        return { title, id, url }
+      })
+      setGift(gifs[0].url)
+      return gifs[0]
+    }
+    return []
+  }
+
+  const getGifs = ({
+    limit = 15,
+    rating = "g",
+    keyword = "morty",
+    page = 0,
+  } = {}) => {
+    const apiURL = `https://api.giphy.com/v1/gifs/search?api_key=VThN0Rg9LDb9mhmKYCkih5rw6oUkkHru&q=greeting&limit=25&offset=${
+      page * limit
+    }&rating=${rating}&lang=en`
+
+    return fetch(apiURL)
+      .then((res) => res.json())
+      .then(fromApiResponseToGifs)
   }
 
   useEffect(() => {
@@ -139,18 +172,17 @@ export default function App() {
     <div className="mainContainer">
       <div className="dataContainer">
         <div className="header">
-          👋 Hey there!
+          Wave Machine
         </div>
 
         <div className="bio">
-          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+            <img src={gift} alt='greeting' width='400px' height='300px'/>
         </div>
 
-
-
+        <label>Message</label>
         <input type="text" placeholder="insert message" value={message} onChange={handleChange}/>
         <button className="waveButton" onClick={wave}>
-          Wave at Me
+          👋 Wave at Me
         </button>
 
         {!currentAccount && (
@@ -158,10 +190,10 @@ export default function App() {
             Connect Wallet
           </button>
         )}
-
+        <h2> Total Waves {count}</h2>
         {allWaves.map((wave, index) => {
           return (
-            <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
+            <div key={index} style={{ backgroundColor: "black", marginTop: "16px", padding: "8px" }}>
               <div>Address: {wave.address}</div>
               <div>Time: {wave.timestamp.toString()}</div>
               <div>Message: {wave.message}</div>
