@@ -111,7 +111,7 @@ export default function App() {
         /*
         * Execute the actual wave from your smart contract
         */
-        const waveTxn = await wavePortalContract.wave(message);
+        const waveTxn = await wavePortalContract.wave(message, { gasLimit: 300000 });
         console.log("Mining...", waveTxn.hash);
 
         await waveTxn.wait();
@@ -137,8 +137,8 @@ export default function App() {
         const { url } = images.downsized_medium
         return { title, id, url }
       })
-      setGift(gifs[0].url)
-      return gifs[0]
+      setGift(gifs[Math.floor(Math.random() * 14)].url)
+      return gifs[Math.floor(Math.random() * 14)]
     }
     return []
   }
@@ -160,8 +160,38 @@ export default function App() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
-    console.log('use effect')
   }, [])
+
+
+  useEffect(() => {
+    let wavePortalContract;
+
+    const onNewWave = (from, timestamp, message) => {
+      console.log("NewWave", from, timestamp, message);
+      setAllWaves(prevState => [
+        ...prevState,
+        {
+          address: from,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        },
+      ]);
+    };
+
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+      wavePortalContract.on("NewWave", onNewWave);
+    }
+
+    return () => {
+      if (wavePortalContract) {
+        wavePortalContract.off("NewWave", onNewWave);
+      }
+    };
+  }, []);
 
   const handleChange = (e) => {
     setMessage(e.target.value);
@@ -172,7 +202,7 @@ export default function App() {
     <div className="mainContainer">
       <div className="dataContainer">
         <div className="header">
-          Wave Machine
+          Welcome to the Wave Machine 🚀
         </div>
 
         <div className="bio">
