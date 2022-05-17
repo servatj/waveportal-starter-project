@@ -220,7 +220,8 @@ export default function App() {
             Connect Wallet
           </button>
         )}
-        <h2> Total Waves {count}</h2>
+        <h2>Total Waves {count}</h2>
+        <p>Built wiht help from <a  style={{ textDecoration: "none", color: "pink" }} href="https://buildspace.so/">buildspace.so</a></p>
         {allWaves.map((wave, index) => {
           return (
             <div key={index} style={{ backgroundColor: "black", marginTop: "16px", padding: "8px" }}>
